@@ -6,10 +6,10 @@ import os
 
 
 if __name__ == '__main__':
-    batch = 4
+    batch = 64
     init_lr = 0.00001
-    h5_path = 'train.h5'
-    mfcc_len = 100
+    h5_path = '../train/train.h5'
+    mfcc_len = 198 * 12
     weights_name = None
 
     # prepare for the training data
@@ -22,24 +22,24 @@ if __name__ == '__main__':
     np.random.shuffle(array_list)
     bar = int(length*0.95)
     print('-------', bar, length)
-    train_data = x[array_list[:bar], :, :, :]
-    val_data = x[array_list[bar:], :, :, :]
-    train_label = y[array_list[:bar], :, :, :]
-    val_label = y[array_list[bar:], :, :, :]
+    train_data = x[array_list[:bar], :]
+    val_data = x[array_list[bar:], :]
+    train_label = y[array_list[:bar], :]
+    val_label = y[array_list[bar:], :]
     
     
     def train_generator():
         while True:
             for i in range(0, bar, batch_size)[:-1]:
-                yield train_data[i:i+batch_size, :, :, :], train_label[i:i+batch_size, :, :, :]
+                yield train_data[i:i+batch_size, :], train_label[i:i+batch_size, :]
             # np.random.shuffle(train_data)
 
     def val_generator():
         for i in range(0, length-bar, batch_size)[:-1]:
-            yield val_data[i:i+batch_size, :, :, :], val_label[i:i+batch_size, :, :, :]
+            yield val_data[i:i+batch_size, :], val_label[i:i+batch_size, :]
 
-    inputs = tf.placeholder(tf.float32, [batch_size, mfcc])
-    targets = tf.placeholder(tf.float32, [batch_size, 1])
+    inputs = tf.placeholder(tf.float32, [batch_size, mfcc_len])
+    targets = tf.placeholder(tf.float32, [batch_size, 3])
     
     train_op = 0
     loss = 0
@@ -53,11 +53,11 @@ if __name__ == '__main__':
 
         fc2 = tf.keras.layers.PReLU(shared_axes=[1], name='relu2')(_fc2)
 
-        _fc3 = tf.layers.dense(fc2, 3072, name='fc3')
+        _fc3 = tf.layers.dense(fc2, 3, name='fc3')
 
         fc3 = tf.keras.layers.PReLU(shared_axes=[1], name='relu3')(_fc3)
 
-        loss = 
+        loss = tf.softmax_cross_entropy_with_logits(labels=targets, logits=fc3)
 
         global_step = tf.Variable(0, trainable=False)
         learning_rate = tf.train.exponential_decay(init_lr, global_step=global_step, decay_steps = 10000, decay_rate=0.7)
@@ -87,7 +87,7 @@ if __name__ == '__main__':
             data_gen = train_generator()
             interval = 500
 
-        for i in range(200000):
+        for i in range(60000):
             if i % interval == 0:
                 val_gen = val_generator()
                 val_loss_s = []
