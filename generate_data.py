@@ -34,9 +34,18 @@ if __name__ == '__main__':
         raw_data[i,:sample_num,:] = wav2mfcc(filename)
         raw_label[i,:sample_num,i] = 1
     
-    for st in range(0,data_num,sample_num):
-        raw_data[:,st:st+sample_num,:] = raw_data[:,:sample_num,:]
-        raw_label[:,st:st+sample_num,:] = raw_label[:,:sample_num,:]
+    for_train_data = raw_data[:,:sample_num-2,:]
+    for_train_label = raw_label[:,:sample_num-2,:]
+    for_valid_data = raw_data[:,sample_num-2:sample_num,:]
+    for_valid_label = raw_label[:,sample_num-2:sample_num,:]
+    # now 8 for train and 2 for test
+    for st in range(0, int(0.8 * data_num),sample_num-2):
+        raw_data[:,st:st+sample_num-2,:] = for_train_data
+        raw_label[:,st:st+sample_num-2,:] = for_train_label
+
+    for st in range(int(0.8 * data_num), data_num, 2):
+        raw_data[:,st:st+2,:] = for_valid_data
+        raw_label[:,st:st+2,:] = for_valid_label
 
     
     # consider that our data is not big, so read them to memory just in one time

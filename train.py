@@ -18,14 +18,14 @@ if __name__ == '__main__':
     x = np.array(hf['data'], dtype=np.float32)
     y = np.array(hf['label'], dtype=np.float32)
     length = x.shape[0]
-    array_list = list(range(0, length))
-    np.random.shuffle(array_list)
-    bar = int(length*0.95)
+    # array_list = list(range(0, length))
+    # np.random.shuffle(array_list)
+    bar = int(length*0.8)
     print('-------', bar, length)
-    train_data = x[array_list[:bar], :]
-    val_data = x[array_list[bar:], :]
-    train_label = y[array_list[:bar], :]
-    val_label = y[array_list[bar:], :]
+    train_data = x[:bar, :]
+    val_data = x[bar:, :]
+    train_label = y[:bar, :]
+    val_label = y[bar:, :]
     
     
     def train_generator():
