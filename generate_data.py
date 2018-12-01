@@ -6,7 +6,7 @@ import os
 # Here de define mode 1 2 3, which respond to 5. , chunlv, 12 average
 if __name__ == '__main__':
 
-    filenames = {0:'../raw_data/five_tune.wav', 1:'../raw_data/just_tune.wav', 2:'../raw_data/twelve_tune.wav'}
+    filenames = {0:'../raw_data/5.wav', 1:'../raw_data/chun.wav', 2:'../raw_data/12.wav'}
     # filenames = {0:'../raw_data/music.wav', 1:'../raw_data/music.wav', 2:'../raw_data/music.wav'}
     mfcc_len = 198 * 12
     h5_path = '../train/train.h5'

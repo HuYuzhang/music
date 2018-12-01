@@ -87,26 +87,26 @@ if __name__ == '__main__':
             data_gen = train_generator()
             interval = 500
 
-        for i in range(60000):
-            if i % interval == 0:
-                val_gen = val_generator()
-                val_loss_s = []
-                for v_data, v_label in val_gen:
-                    val_loss = sess.run([loss], feed_dict={
-                                                 inputs: v_data, targets: v_label})
-                    val_loss_s.append(float(val_loss))
+            for i in range(60000):
+                if i % interval == 0:
+                    val_gen = val_generator()
+                    val_loss_s = []
+                    for v_data, v_label in val_gen:
+                        val_loss = sess.run([loss], feed_dict={
+                                                    inputs: v_data, targets: v_label})
+                        val_loss_s.append(float(val_loss))
 
-                print("step %8d, loss: " % (i, np.mean(val_loss_s)))
+                    print("step %8d, loss: " % (i, np.mean(val_loss_s)))
+                    
+                # ------------------- Here is the training part ---------------
+                iter_data, iter_label = next(data_gen)
+                # print(iter_data.shape)
+                feed_dict = {inputs: iter_data, targets: iter_label}
+                _, train_loss = sess.run([train_op, loss],
+                                        feed_dict=feed_dict,
+                                        options=options,
+                                        run_metadata=run_metadata)
                 
-            # ------------------- Here is the training part ---------------
-            iter_data, iter_label = next(data_gen)
-            # print(iter_data.shape)
-            feed_dict = {inputs: iter_data, targets: iter_label}
-            _, train_loss = sess.run([train_op, loss],
-                                    feed_dict=feed_dict,
-                                    options=options,
-                                    run_metadata=run_metadata)
-            
-            if i % 10000 == 0:
-                save_path = saver.save(sess, os.path.join(
-                    checkpoint_dir, "%06d.ckpt" % (i)))
+                if i % 10000 == 0:
+                    save_path = saver.save(sess, os.path.join(
+                        checkpoint_dir, "%06d.ckpt" % (i)))
