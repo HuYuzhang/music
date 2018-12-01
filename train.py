@@ -6,7 +6,7 @@ import os
 
 
 if __name__ == '__main__':
-    batch = 64
+    batch_size = 64
     init_lr = 0.00001
     h5_path = '../train/train.h5'
     mfcc_len = 198 * 12
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     loss = 0
 
     with tf.variable_scope('main_full', reuse=tf.AUTO_REUSE): 
-        _fc1 = tf.layers.dense(input_layer, 3072, name='fc1')
+        _fc1 = tf.layers.dense(inputs, 3072, name='fc1')
 
         fc1 = tf.keras.layers.PReLU(shared_axes=[1], name='relu1')(_fc1)
 
@@ -57,7 +57,7 @@ if __name__ == '__main__':
 
         fc3 = tf.keras.layers.PReLU(shared_axes=[1], name='relu3')(_fc3)
 
-        loss = tf.softmax_cross_entropy_with_logits(labels=targets, logits=fc3)
+        loss = tf.nn.softmax_cross_entropy_with_logits(labels=targets, logits=fc3)
 
         global_step = tf.Variable(0, trainable=False)
         learning_rate = tf.train.exponential_decay(init_lr, global_step=global_step, decay_steps = 10000, decay_rate=0.7)
@@ -68,7 +68,7 @@ if __name__ == '__main__':
         checkpoint_dir = '../model/'
         if not os.path.exists(checkpoint_dir):
             os.makedirs(checkpoint_dir)
-
+        print('finish construct the network')
         with tf.Session() as sess:
             if weights_name is not None:
                 saver.restore(sess, weights_name)
@@ -86,17 +86,19 @@ if __name__ == '__main__':
             run_metadata = tf.RunMetadata()
             data_gen = train_generator()
             interval = 500
-
-            for i in range(60000):
+            print('now begin to training')
+            for i in range(5000):
                 if i % interval == 0:
                     val_gen = val_generator()
                     val_loss_s = []
                     for v_data, v_label in val_gen:
-                        val_loss = sess.run([loss], feed_dict={
+                        val_loss = sess.run(loss, feed_dict={
                                                     inputs: v_data, targets: v_label})
-                        val_loss_s.append(float(val_loss))
+                    #print(type(val_loss))
+                    #print(val_loss.shape)    
+                    val_loss_s.append(np.mean(val_loss))
 
-                    print("step %8d, loss: " % (i, np.mean(val_loss_s)))
+                    print("step %8d, loss: %f" % (i, np.mean(val_loss_s)))
                     
                 # ------------------- Here is the training part ---------------
                 iter_data, iter_label = next(data_gen)
@@ -106,7 +108,8 @@ if __name__ == '__main__':
                                         feed_dict=feed_dict,
                                         options=options,
                                         run_metadata=run_metadata)
-                
+                if i % 10 == 0:
+                    print('train loss: ', np.mean(train_loss)) 
                 if i % 10000 == 0:
                     save_path = saver.save(sess, os.path.join(
                         checkpoint_dir, "%06d.ckpt" % (i)))
