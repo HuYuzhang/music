@@ -85,7 +85,7 @@ if __name__ == '__main__':
             options = tf.RunOptions()  # trace_level=tf.RunOptions.FULL_TRACE)
             run_metadata = tf.RunMetadata()
             data_gen = train_generator()
-            interval = 500
+            interval = 20
             print('now begin to training')
             for i in range(5000):
                 if i % interval == 0:
@@ -96,8 +96,8 @@ if __name__ == '__main__':
                                                     inputs: v_data, targets: v_label})
                     #print(type(val_loss))
                     #print(val_loss.shape)    
-                    val_loss_s.append(np.mean(val_loss))
-
+                        val_loss_s.append(np.mean(val_loss))
+                        #print(np.mean(val_loss))
                     print("step %8d, loss: %f" % (i, np.mean(val_loss_s)))
                     
                 # ------------------- Here is the training part ---------------
@@ -108,8 +108,8 @@ if __name__ == '__main__':
                                         feed_dict=feed_dict,
                                         options=options,
                                         run_metadata=run_metadata)
-                if i % 10 == 0:
-                    print('train loss: ', np.mean(train_loss)) 
+                #if i % 10 == 0:
+                #    print('train loss: ', np.mean(train_loss)) 
                 if i % 10000 == 0:
                     save_path = saver.save(sess, os.path.join(
                         checkpoint_dir, "%06d.ckpt" % (i)))

@@ -52,7 +52,7 @@ if __name__ == '__main__':
         raw_data[:,st:st+2,:] = for_valid_data
         raw_label[:,st:st+2,:] = for_valid_label
 
-    array_list = list(range(int(0.8 * data_num, data_num)))
+    array_list = list(range(int(0.8 * data_num), data_num))
     np.random.shuffle(array_list)
     print('------')
     print(array_list)
