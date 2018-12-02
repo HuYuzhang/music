@@ -42,12 +42,21 @@ if __name__ == '__main__':
     for st in range(0, int(0.8 * data_num),sample_num-2):
         raw_data[:,st:st+sample_num-2,:] = for_train_data
         raw_label[:,st:st+sample_num-2,:] = for_train_label
+    
+    array_list = list(range(0, int(0.8 * data_num)))
+    np.random.shuffle(array_list)
+    print(array_list)
+    raw_data[:,0:int(0.8 * data_num),:] = raw_data[:,array_list,:]
 
     for st in range(int(0.8 * data_num), data_num, 2):
         raw_data[:,st:st+2,:] = for_valid_data
         raw_label[:,st:st+2,:] = for_valid_label
 
-    
+    array_list = list(range(int(0.8 * data_num, data_num)))
+    np.random.shuffle(array_list)
+    print('------')
+    print(array_list)
+    raw_data[:,int(0.8 * data_num):data_num,:] = raw_data[:,array_list,:]
     # consider that our data is not big, so read them to memory just in one time
     # now assume that we have 10 samples each, and 8 for train and 2 for test
 
