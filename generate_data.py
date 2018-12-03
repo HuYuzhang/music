@@ -30,6 +30,7 @@ if __name__ == '__main__':
         # Only reserve the first channel
         signal = signal[:,0]
         time = int(len(signal) / rate)
+        print('---> Dealing with file: %s, and its time is %d s'%(filename, time))
         # before the line, all data is for train, after the line for test
         div_line = int(time * ratio)
         for j in range(train_num):
@@ -57,6 +58,7 @@ if __name__ == '__main__':
         # Only reserve the first channel
         signal = signal[:,0]
         time = int(len(signal) / rate)
+        print('---> Dealing with file: %s, and its time is %d s'%(filename, time))
         # before the line, all data is for train, after the line for test
         div_line = int(time * ratio)
         for j in range(train_num):
