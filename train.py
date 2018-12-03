@@ -44,6 +44,7 @@ if __name__ == '__main__':
     train_op = 0
     loss = 0
 
+    
     with tf.variable_scope('main_full', reuse=tf.AUTO_REUSE): 
         _fc1 = tf.layers.dense(inputs, 1024, name='fc1')
 
@@ -73,6 +74,10 @@ if __name__ == '__main__':
         checkpoint_dir = '../model/'
         if not os.path.exists(checkpoint_dir):
             os.makedirs(checkpoint_dir)
+
+        tb_dir = '../tensorboard'
+        if not os.path.exists(tb_dir):
+            os.makedirs(tb_dir)
         with tf.Session() as sess:
             if weights_name is not None:
                 saver.restore(sess, weights_name)
@@ -90,6 +95,16 @@ if __name__ == '__main__':
             run_metadata = tf.RunMetadata()
             data_gen = train_generator()
             interval = 10
+
+            # for tensorboard<----------------
+            writer = tf.summary.FileWriter(tb_dir, sess.graph)
+            valid_size = int(len(range(0, length-bar, batch_size)[:-1]))
+            valid_input = tf.placeholder(tf.float32, [valid_size])
+            valid_mean = tf.reduce_mean(valid_input)
+            valid_summary = tf.summary.scalar('cross entropy loss:', valid_mean)
+            valid_merged = tf.summary.merge([valid_summary])
+            # for tensorboard<----------------
+
             print('now begin to training')
             for i in range(5000):
                 if i % interval == 0:
@@ -99,8 +114,12 @@ if __name__ == '__main__':
                         val_loss = sess.run(loss, feed_dict={
                                                     inputs: v_data, targets: v_label})
                         val_loss_s.append(np.mean(val_loss))
+                    
                     print("valid stage, step %d, loss: %f" % (i, np.mean(val_loss_s)))
                     
+                    rs = sess.run(valid_merged, feed_dict={valid_input: val_loss_s})
+                    writer.add_summary(rs, i)
+
                 # ------------------- Here is the training part ---------------
                 iter_data, iter_label = next(data_gen)
                 # print(iter_data.shape)
