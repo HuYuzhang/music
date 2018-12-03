@@ -6,10 +6,10 @@ import os
 
 
 if __name__ == '__main__':
-    batch_size = 64
+    batch_size = 32
     init_lr = 0.00001
     h5_path = '../train/test.h5'
-    mfcc_len = 198 * 12
+    mfcc_len = 2998 * 12
     weights_name = sys.argv[1]
 
     # prepare for the training data
@@ -28,11 +28,11 @@ if __name__ == '__main__':
     
 
     with tf.variable_scope('main_full', reuse=tf.AUTO_REUSE): 
-        _fc1 = tf.layers.dense(inputs, 3072, name='fc1')
+        _fc1 = tf.layers.dense(inputs, 1024, name='fc1')
 
         fc1 = tf.keras.layers.PReLU(shared_axes=[1], name='relu1')(_fc1)
 
-        _fc2 = tf.layers.dense(fc1, 3072, name='fc2')
+        _fc2 = tf.layers.dense(fc1, 2048, name='fc2')
 
         fc2 = tf.keras.layers.PReLU(shared_axes=[1], name='relu2')(_fc2)
 
@@ -62,13 +62,15 @@ if __name__ == '__main__':
                 v_loss, out = sess.run([loss, fc3], feed_dict={inputs: v_data, targets: v_label})
                 loss_s.append(np.mean(v_loss))
                 mode = np.argmax(out, axis=1)
-
+                #print(mode.shape)
+                #exit(0)
                 # check if this is the right classification
                 for i in range(batch_size):
                     tot_num = tot_num + 1
-                    if v_label[mode[i]] == 1:
+                    #print(v_label.shape)
+                    if v_label[i, mode[i]] == 1:
                         right_num = right_num + 1
 
 
         print('Final loss: ', np.mean(loss_s))
-        print('Accurate rate is: ', right_num / tot_num)
+        print('We test %d samples, and %d samples are right, Accurate rate is: %f'%(tot_num, right_num, right_num / tot_num))

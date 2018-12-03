@@ -9,7 +9,7 @@ if __name__ == '__main__':
     batch_size = 64
     init_lr = 0.00001
     h5_path = '../train/train.h5'
-    mfcc_len = 198 * 12
+    mfcc_len = 2998 * 12
     weights_name = None
 
     # prepare for the training data
@@ -45,17 +45,21 @@ if __name__ == '__main__':
     loss = 0
 
     with tf.variable_scope('main_full', reuse=tf.AUTO_REUSE): 
-        _fc1 = tf.layers.dense(inputs, 3072, name='fc1')
+        _fc1 = tf.layers.dense(inputs, 1024, name='fc1')
 
         fc1 = tf.keras.layers.PReLU(shared_axes=[1], name='relu1')(_fc1)
 
-        _fc2 = tf.layers.dense(fc1, 3072, name='fc2')
+        _fc2 = tf.layers.dense(fc1, 2048, name='fc2')
 
         fc2 = tf.keras.layers.PReLU(shared_axes=[1], name='relu2')(_fc2)
 
         _fc3 = tf.layers.dense(fc2, 3, name='fc3')
 
         fc3 = tf.keras.layers.PReLU(shared_axes=[1], name='relu3')(_fc3)
+        
+        #_fc4 = tf.layers.dense(inputs, 3, name='fc4')
+
+        #fc4 = tf.keras.layers.PReLU(shared_axes=[1], name='relu4')(_fc4)
 
         loss = tf.nn.softmax_cross_entropy_with_logits(labels=targets, logits=fc3)
 
@@ -85,7 +89,7 @@ if __name__ == '__main__':
             options = tf.RunOptions()  # trace_level=tf.RunOptions.FULL_TRACE)
             run_metadata = tf.RunMetadata()
             data_gen = train_generator()
-            interval = 20
+            interval = 10
             print('now begin to training')
             for i in range(5000):
                 if i % interval == 0:
@@ -95,7 +99,7 @@ if __name__ == '__main__':
                         val_loss = sess.run(loss, feed_dict={
                                                     inputs: v_data, targets: v_label})
                         val_loss_s.append(np.mean(val_loss))
-                    print("valid stage, step %8d, loss: %f" % (i, np.mean(val_loss_s)))
+                    print("valid stage, step %d, loss: %f" % (i, np.mean(val_loss_s)))
                     
                 # ------------------- Here is the training part ---------------
                 iter_data, iter_label = next(data_gen)
@@ -107,6 +111,6 @@ if __name__ == '__main__':
                                         run_metadata=run_metadata)
                 if i % interval == 0:
                     print('train loss: ', np.mean(train_loss)) 
-                if i % 500 == 0:
+                if i % 100 == 0:
                     save_path = saver.save(sess, os.path.join(
                         checkpoint_dir, "%06d.ckpt" % (i)))

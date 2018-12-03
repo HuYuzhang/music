@@ -77,7 +77,7 @@ def wav2mfcc(signal, sample_rate):
     mfcc *= lift  #*
 
     mfcc -= (np.mean(mfcc, axis=0) + 1e-8)
-    return mfcc
+    return mfcc.reshape([2998*12])
 
 
 class h5Handler(object):
