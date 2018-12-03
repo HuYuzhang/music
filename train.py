@@ -63,12 +63,12 @@ if __name__ == '__main__':
         learning_rate = tf.train.exponential_decay(init_lr, global_step=global_step, decay_steps = 10000, decay_rate=0.7)
         optimizer = tf.train.AdamOptimizer(learning_rate=init_lr)
         train_op = optimizer.minimize(loss=loss, global_step=tf.train.get_global_step())
+        print('finish construct the network')
 
         saver = tf.train.Saver(max_to_keep=30)
         checkpoint_dir = '../model/'
         if not os.path.exists(checkpoint_dir):
             os.makedirs(checkpoint_dir)
-        print('finish construct the network')
         with tf.Session() as sess:
             if weights_name is not None:
                 saver.restore(sess, weights_name)
@@ -94,10 +94,7 @@ if __name__ == '__main__':
                     for v_data, v_label in val_gen:
                         val_loss = sess.run(loss, feed_dict={
                                                     inputs: v_data, targets: v_label})
-                    #print(type(val_loss))
-                    #print(val_loss.shape)    
                         val_loss_s.append(np.mean(val_loss))
-                        #print(np.mean(val_loss))
                     print("valid stage, step %8d, loss: %f" % (i, np.mean(val_loss_s)))
                     
                 # ------------------- Here is the training part ---------------

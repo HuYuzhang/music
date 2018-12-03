@@ -8,7 +8,7 @@ import os
 if __name__ == '__main__':
     batch_size = 64
     init_lr = 0.00001
-    h5_path = '../train/train.h5'
+    h5_path = '../train/test.h5'
     mfcc_len = 198 * 12
     weights_name = sys.argv[1]
 
@@ -41,17 +41,12 @@ if __name__ == '__main__':
         fc3 = tf.keras.layers.PReLU(shared_axes=[1], name='relu3')(_fc3)
 
         loss = tf.nn.softmax_cross_entropy_with_logits(labels=targets, logits=fc3)
-
-        # global_step = tf.Variable(0, trainable=False)
-        # learning_rate = tf.train.exponential_decay(init_lr, global_step=global_step, decay_steps = 10000, decay_rate=0.7)
-        # optimizer = tf.train.AdamOptimizer(learning_rate=init_lr)
-        # train_op = optimizer.minimize(loss=loss, global_step=tf.train.get_global_step())
-
-        saver = tf.train.Saver()
-        # checkpoint_dir = '../model/'
-        # if not os.path.exists(checkpoint_dir):
-        #     os.makedirs(checkpoint_dir)
         print('finish construct the network')
+
+        # Now finishing building the network, and begin the test
+        saver = tf.train.Saver()
+        right_num = 0
+        tot_num = 0
         with tf.Session() as sess:
             if weights_name is not None:
                 saver.restore(sess, weights_name)
@@ -66,6 +61,14 @@ if __name__ == '__main__':
                 #print(v_data.shape)
                 v_loss, out = sess.run([loss, fc3], feed_dict={inputs: v_data, targets: v_label})
                 loss_s.append(np.mean(v_loss))
-                #print(np.argmax(out, axis=1))
+                mode = np.argmax(out, axis=1)
 
-        print('Final result: ', np.mean(loss_s))
+                # check if this is the right classification
+                for i in range(batch_size):
+                    tot_num = tot_num + 1
+                    if v_label[mode[i]] == 1:
+                        right_num = right_num + 1
+
+
+        print('Final loss: ', np.mean(loss_s))
+        print('Accurate rate is: ', right_num / tot_num)
