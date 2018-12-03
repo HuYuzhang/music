@@ -18,10 +18,10 @@ def wav2mfcc(fileName):
     sample_rate,raw_signal=scipy.io.wavfile.read(fileName)
     music_len = 30
     mfcc_len = 198 * 12
-
-    all_data = np.zeros([10, mfcc_len], dtype=np.float32)
+    #print(raw_signal)
+    all_data = np.zeros([6, mfcc_len], dtype=np.float32)
     #exit(0)
-    for i in range(0, 300, 30):
+    for i in range(0, 180, 30):
         signal = raw_signal[i * sample_rate: (i + 1) * sample_rate, :]
 
         #seems that here already finish the converting from 2D to 1D(two voice channel)

@@ -98,7 +98,7 @@ if __name__ == '__main__':
                     #print(val_loss.shape)    
                         val_loss_s.append(np.mean(val_loss))
                         #print(np.mean(val_loss))
-                    print("step %8d, loss: %f" % (i, np.mean(val_loss_s)))
+                    print("valid stage, step %8d, loss: %f" % (i, np.mean(val_loss_s)))
                     
                 # ------------------- Here is the training part ---------------
                 iter_data, iter_label = next(data_gen)
@@ -108,8 +108,8 @@ if __name__ == '__main__':
                                         feed_dict=feed_dict,
                                         options=options,
                                         run_metadata=run_metadata)
-                #if i % 10 == 0:
-                #    print('train loss: ', np.mean(train_loss)) 
-                if i % 10000 == 0:
+                if i % interval == 0:
+                    print('train loss: ', np.mean(train_loss)) 
+                if i % 500 == 0:
                     save_path = saver.save(sess, os.path.join(
                         checkpoint_dir, "%06d.ckpt" % (i)))
